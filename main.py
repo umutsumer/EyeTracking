@@ -1,6 +1,4 @@
 import sys
-#import main as m
-#import uitest as m
 import cemalui as m
 import cv2
 from PyQt5.QtWidgets import QApplication, QDialog
