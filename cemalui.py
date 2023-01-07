@@ -29,7 +29,7 @@ class MainWindow(QWidget):
     
     def __init__(self):
         super(MainWindow, self).__init__()
-        #pozisyon = ""
+        self.setWindowTitle("Cemal")
         self.VBL = QVBoxLayout()
 
         self.FeedLabel = QLabel()
