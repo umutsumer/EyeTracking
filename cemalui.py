@@ -17,7 +17,6 @@ import tensorflow as tf
 import mediapipe as mp
 import math
 
-#umut = 0
 flag = 0
 blink = 0
 i = 0
@@ -29,7 +28,6 @@ class MainWindow(QWidget):
     
     def __init__(self):
         super(MainWindow, self).__init__()
-        #pozisyon = ""
         self.VBL = QVBoxLayout()
 
         self.FeedLabel = QLabel()
@@ -236,10 +234,8 @@ class Baslat:
                         first_blink = False
                         check_second_blink = False
                         print("Too old.")
-                    #cv.putText(frame, f"Iris pos: {iris_pos} {lr_ratio:.2f} {ud_ratio:.2f}", (30,30), cv.FONT_HERSHEY_PLAIN, 1.2, (0,255,0), 1, cv.LINE_AA)
 
                 return operation, iris_pos,ret, frame
-                #cv.imshow('Frame',frame)
                 key = cv.waitKey(1)
                 if key == ord('q'):
                     break
