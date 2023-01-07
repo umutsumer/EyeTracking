@@ -62,8 +62,8 @@ def faceDetector(image, gray, Draw=True):
         cordFace2 = (face.right(), face.bottom())
 
         # draw rectangle if draw is True.
-        if Draw == True:
-            cv.rectangle(image, cordFace1, cordFace2, GREEN, 2)
+        #if Draw == True:
+            #cv.rectangle(image, cordFace1, cordFace2, GREEN, 2)
             
         break
     return image, face
@@ -79,9 +79,9 @@ def faceLandmakDetector(image, gray, face, Draw=True):
         # getting x and y coordinates of each mark and adding into list.
         pointList.append(point)
         # draw if draw is True.
-        if Draw == True:
+        #if Draw == True:
             # draw circle on each landmark
-            cv.circle(image, point, 1, RED,1)
+            #cv.circle(image, point, 1, RED,1)
     return image, pointList
 
 
@@ -111,7 +111,7 @@ def EyeTracking(image, gray, eyePoints):
     # converting eyePoints into Numpy arrays.
     PollyPoints = np.array(eyePoints, dtype=np.int32)
     # Filling the Eyes portion with WHITE color.
-    cv.fillPoly(mask, [PollyPoints], 255)
+    cv.fillPoly(mask, [PollyPoints], 255) # SÝLDÝM BAKALIM NOLCAK
 
     # Writing gray image where color is White  in the mask using Bitwise and operator.
     eyeImage = cv.bitwise_and(gray, gray, mask=mask)
@@ -135,7 +135,7 @@ def EyeTracking(image, gray, eyePoints):
     divPart = int(width/3)
 
     #  applying the threshold to the eye .
-    ret, thresholdEye = cv.threshold(cropedEye, 100, 255, cv.THRESH_BINARY)
+    ret, thresholdEye = cv.threshold(cropedEye, 45, 255, cv.THRESH_BINARY)
 
     # dividing the eye into Three parts .
     rightPart = thresholdEye[0:height, 0:divPart]
