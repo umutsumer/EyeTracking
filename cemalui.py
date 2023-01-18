@@ -18,7 +18,7 @@ import mediapipe as mp
 import math
 import serial
 command = ""
-ser = serial.Serial("COM14", 9600, timeout = 1)
+ser = serial.Serial("COM15", 9600, timeout = 1)
 iris_pos = ""
 lr_ratio = 0 
 ud_ratio = 0
