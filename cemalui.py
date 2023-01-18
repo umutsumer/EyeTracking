@@ -2,13 +2,13 @@
 from asyncio.windows_events import NULL
 from distutils.command.check import check
 from email.errors import FirstHeaderLineIsContinuationDefect
+from pickle import GLOBAL
 from sqlite3 import Time
 import sys
 from tkinter import CENTER
 from turtle import setposition
 import cv2 as cv
 import numpy as np
-import module as m
 import time
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -16,9 +16,16 @@ from PyQt5.QtCore import *
 import tensorflow as tf 
 import mediapipe as mp
 import math
-
+import serial
+command = ""
+ser = serial.Serial("COM14", 9600, timeout = 1)
+iris_pos = ""
+lr_ratio = 0 
+ud_ratio = 0
+chck = 0
 flag = 0
 blink = 0
+msg = b'5'
 i = 0
 first_blink = False
 check_second_blink = False
@@ -124,6 +131,10 @@ class Worker1(QThread):
 
 class Baslat:
     def Camera(cap):
+
+        
+
+        
         mp_face_mesh = mp.solutions.face_mesh
         LEFT_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398]
         RIGHT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246]
@@ -158,23 +169,34 @@ class Baslat:
 
             iris_position = ""
             command = ""
+            global msg
+            global chck
             if ud_ratio > 0.42 and ud_ratio <= 0.58 and lr_ratio > 0.42 and lr_ratio <= 0.57:
                 iris_position = "center"
-                command = "STAYING STILL"
+                if chck == 0:
+                    command = "MOVING FORWARD"
+                    msg = b'5'
+                else:
+                    command = "STAYING STILL"
+                    msg = b'6'
             elif ud_ratio >= 0.58 and lr_ratio > 0.42 and lr_ratio <= 0.57:
                 iris_position = "down"
-                command = "STOPPING"
+                command = "MOVING BACKWARDS"
+                msg = b'2'
             elif ud_ratio <= 0.42 and lr_ratio > 0.42 and lr_ratio <= 0.57:
                 iris_position = "up"    
                 command = "MOVING FORWARD"
+                msg = b'1'
             elif lr_ratio <= 0.42:
                 iris_position = "right"
                 command = "TURNING RIGHT"
+                msg = b'3'
             elif lr_ratio > 0.57:
                 iris_position = "left"
                 command = "TURNING LEFT"
+                msg = b'4'
 
-            return command, iris_position, lr_ratio, ud_ratio
+            return msg, command, iris_position, lr_ratio, ud_ratio
 
 
         global flag 
@@ -184,7 +206,11 @@ class Baslat:
         global first_blink_time
         global blink                    
         global operation
-
+        global command
+        global iris_pos 
+        global lr_ratio
+        global ud_ratio
+        
         with mp_face_mesh.FaceMesh(
             max_num_faces=1, 
             refine_landmarks=True,
@@ -205,9 +231,14 @@ class Baslat:
                     center_left = np.array([l_cx, l_cy], dtype = np.int32)
                     center_right = np.array([r_cx, r_cy], dtype = np.int32)
                     blink = 0
+                    global msg
+                    global ser
+                    global chck
                     operation = ""
-                    command, iris_pos, lr_ratio, ud_ratio = iris_position(center_right, mesh_points[R_H_RIGHT][0], mesh_points[R_H_LEFT][0], mesh_points[R_H_UP][0], mesh_points[R_H_DOWN][0])
                     total_distance = euclidean_distance(mesh_points[R_H_UP][0], mesh_points[R_H_DOWN][0])
+                    if total_distance >= 7:
+                        msg, command, iris_pos, lr_ratio, ud_ratio = iris_position(center_right, mesh_points[R_H_RIGHT][0], mesh_points[R_H_LEFT][0], mesh_points[R_H_UP][0], mesh_points[R_H_DOWN][0])
+
                     if total_distance <= 3 and flag == 0:
                         # Only increment the blink count if this is the first blink in a sequence
                         flag = 1
@@ -220,11 +251,17 @@ class Baslat:
                             # This is the second blink in a sequence, so reset the flags
                             first_blink = False
                             check_second_blink = False
+                            if msg == b'5':
+                                chck = 1
+                            elif msg == b'6':
+                                chck = 0
                             operation = str(command)
+                            print("yollamak üzereyim")
+                            ser.write(msg)
                             print("Two blink detected ",operation)
                             blink = 1
                             
-                    elif total_distance >3:
+                    elif total_distance >6:
                         # Reset the flag if the user has fully opened their eyes
                         flag = 0
                         if first_blink:
